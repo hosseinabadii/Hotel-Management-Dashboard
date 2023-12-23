@@ -5,7 +5,7 @@ import streamlit as st
 
 from dashboard.api_calls import delete, get, post, update
 
-from .utils import get_all_ids, initialize_booking_session, rerun, validation_id
+from .utils import get_all_ids, initialize_booking_session, rerun
 
 
 def all_bookings():
@@ -23,17 +23,14 @@ def all_bookings():
 
 def create_booking():
     st.subheader("Create Booking")
+    today = date.today()
+    tomorrow = date.today() + timedelta(days=1)
+    room_ids = get_all_ids("rooms/")
+    customer_ids = get_all_ids("customers/")
     with st.form("create"):
-        room_id = st.number_input("Room ID: *", value=1, step=1)
-        validation_id(room_id)
-
-        customer_id = st.number_input("Customer ID: *", value=1, step=1)
-        validation_id(customer_id)
-
-        today = date.today()
+        room_id = st.selectbox("Select Room ID:", room_ids)
+        customer_id = st.selectbox("Select Customer ID:", customer_ids)
         from_date = st.date_input("From Date *", min_value=today, value=today)
-
-        tomorrow = date.today() + timedelta(days=1)
         to_date = st.date_input("To Date: *", min_value=tomorrow, value=tomorrow)
 
         submitted = st.form_submit_button("Create")
