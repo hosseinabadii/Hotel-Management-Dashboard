@@ -3,9 +3,9 @@ import streamlit as st
 from dashboard.bookings import bookings_view
 from dashboard.customers import customers_view
 from dashboard.rooms import rooms_view
-from run_server import start_server
+# from run_server import start_server
 
-start_server()
+# start_server()
 
 st.title("Hotel Management System")
 
