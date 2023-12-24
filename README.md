@@ -1,3 +1,5 @@
+<img src="./images/banner.png" width=800>
+
 # Hotel Management System
 
 A modern web application for managing hotel operations, including handling customers, rooms, and bookings. This project utilizes **Streamlit** for a user-friendly interface and **FastAPI** for robust backend services.
