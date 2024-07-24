@@ -1,0 +1,16 @@
+services:
+  fastapi-server:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8000:8000"
+
+  streamlit-app:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8501:8501"
+    depends_on:
+      - fastapi-server
