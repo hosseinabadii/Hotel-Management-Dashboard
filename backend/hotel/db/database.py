@@ -1,5 +1,4 @@
-from pathlib import Path
-
+from backend import BASE_PATH
 from loguru import logger
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -7,7 +6,11 @@ from sqlalchemy.orm import sessionmaker
 from .models import Base
 from .sample_data import customers, rooms
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./hotel.db"
+DB_NAME = "hotel.db"
+DB_PATH = BASE_PATH / DB_NAME
+
+# SQLALCHEMY_DATABASE_URL = "sqlite:///./hotel.db"
+SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
 )
@@ -24,7 +27,7 @@ def get_db():
 
 
 def create_db():
-    if not Path("./hotel.db").exists():
+    if not DB_PATH.exists():
         logger.info("Database not exists. Creating database...")
         Base.metadata.create_all(engine)
         db = SessionLocal()

@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 # Customers schemas
@@ -22,8 +22,7 @@ class CustomerResult(BaseModel):
     last_name: str
     email_address: str
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Rooms schemas
@@ -45,8 +44,7 @@ class RoomResult(BaseModel):
     size: int
     price: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Booking schemas
@@ -72,5 +70,4 @@ class BookingResult(BaseModel):
     from_date: date
     to_date: date
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)

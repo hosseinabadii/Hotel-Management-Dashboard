@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
-from hotel.db.database import create_db
-from hotel.routers import bookings, customers, index, rooms
+from backend.hotel.db.database import create_db
+from backend.hotel.routers import bookings, customers, index, rooms
 
 create_db()
 

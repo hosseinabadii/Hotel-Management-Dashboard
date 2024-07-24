@@ -3,22 +3,24 @@ from datetime import date, datetime, timedelta
 import pandas as pd
 import streamlit as st
 
-from dashboard.api_calls import delete, get, post, update
-
+from .api_calls import delete, get_all, get_one, post, update
 from .utils import get_all_ids, initialize_booking_session, rerun
 
 
 def all_bookings():
     st.subheader("All Bookings")
     if st.button("Show all Bookings"):
-        bookings = get("bookings/")
-        if not bookings:
-            st.warning("No bookings!")
-            st.stop()
-        data = pd.DataFrame.from_dict(bookings)
-        data = data.set_index("id")
-        data.columns = ["Room ID", "Customer ID", "Price", "From Date", "To Date"]
-        st.table(data)
+        response = get_all("bookings/")
+        if isinstance(response, list):
+            if len(response) == 0:
+                st.warning("No bookings!")
+                st.stop()
+            data = pd.DataFrame(response)
+            data = data.set_index("id")
+            data.columns = ["Room ID", "Customer ID", "Price", "From Date", "To Date"]
+            st.table(data)
+        else:
+            st.error(response)
 
 
 def create_booking():
@@ -26,7 +28,11 @@ def create_booking():
     today = date.today()
     tomorrow = date.today() + timedelta(days=1)
     room_ids = get_all_ids("rooms/")
+    if room_ids is None:
+        st.stop()
     customer_ids = get_all_ids("customers/")
+    if customer_ids is None:
+        st.stop()
     with st.form("create"):
         room_id = st.selectbox("Select Room ID:", room_ids)
         customer_id = st.selectbox("Select Customer ID:", customer_ids)
@@ -39,8 +45,8 @@ def create_booking():
         booking_data = {
             "room_id": room_id,
             "customer_id": customer_id,
-            "from_date": from_date.strftime("%Y-%m-%d"),
-            "to_date": to_date.strftime("%Y-%m-%d"),
+            "from_date": from_date.strftime("%Y-%m-%d"),  # type: ignore
+            "to_date": to_date.strftime("%Y-%m-%d"),  # type: ignore
         }
         response = post("booking/", booking_data)
         if isinstance(response, dict):
@@ -53,6 +59,8 @@ def create_booking():
 def manage_booking():
     st.subheader("Manage Booking")
     booking_ids = get_all_ids("bookings/")
+    if booking_ids is None:
+        st.stop()
     st.write("Select the booking id:")
     same_id = None
     if st.session_state["booking"]:
@@ -71,7 +79,7 @@ def manage_booking():
 
     columns = st.columns([0.2, 0.15, 0.15, 0.5])
     find_booking_button = columns[0].button("Find Booking")
-    if find_booking_button and (same_id != booking_id):
+    if find_booking_button and (booking_id is not None) and (same_id != booking_id):
         st.session_state["find_booking"] = True
         find_booking(booking_id)
 
@@ -92,7 +100,7 @@ def find_booking(booking_id: int):
     if not st.session_state["find_booking"]:
         return
     st.session_state["find_booking"] = False
-    response = get(f"booking/{booking_id}")
+    response = get_one(f"booking/{booking_id}")
     if isinstance(response, dict):
         st.session_state["booking"] = response
         st.rerun()
@@ -109,7 +117,11 @@ def update_booking(booking: dict) -> None:
     today = date.today()
     tomorrow = date.today() + timedelta(days=1)
     room_ids = get_all_ids("rooms/")
+    if room_ids is None:
+        st.stop()
     customer_ids = get_all_ids("customers/")
+    if customer_ids is None:
+        st.stop()
     current_room_index = room_ids.index(booking["room_id"])
     current_customer_index = customer_ids.index(booking["customer_id"])
     with st.form("update"):
@@ -124,12 +136,12 @@ def update_booking(booking: dict) -> None:
                 "From Date *",
                 min_value=today,
                 value=datetime.strptime(booking["from_date"], "%Y-%m-%d"),
-            ).strftime("%Y-%m-%d"),
+            ).strftime("%Y-%m-%d"),  # type: ignore
             "to_date": st.date_input(
                 "To Date *",
                 min_value=tomorrow,
                 value=datetime.strptime(booking["to_date"], "%Y-%m-%d"),
-            ).strftime("%Y-%m-%d"),
+            ).strftime("%Y-%m-%d"),  # type: ignore
         }
         submitted = st.form_submit_button("Update")
         if submitted:

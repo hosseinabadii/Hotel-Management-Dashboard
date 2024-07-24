@@ -1,10 +1,10 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from hotel.db.models import DBBooking
-from hotel.operations.customers import read_customer
-from hotel.operations.rooms import read_room
-from hotel.operations.schemas import BookingCreateData, BookingUpdateData
+from backend.hotel.db.models import DBBooking
+from backend.hotel.operations.customers import read_customer
+from backend.hotel.operations.rooms import read_room
+from backend.hotel.operations.schemas import BookingCreateData, BookingUpdateData
 
 
 def date_validation(from_date, to_date) -> int:

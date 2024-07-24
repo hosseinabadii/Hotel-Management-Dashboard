@@ -1,19 +1,24 @@
 import pandas as pd
 import streamlit as st
 
-from dashboard.api_calls import delete, get, post, update
-
+from .api_calls import delete, get_one, get_all, post, update
 from .utils import check_empty, get_all_ids, initialize_customer_session, rerun
 
 
 def all_customers():
     st.subheader("All Customers")
     if st.button("Show all customers"):
-        customers = get("customers/")
-        data = pd.DataFrame.from_dict(customers)
-        data = data.set_index("id")
-        data.columns = ["First Name", "Last Name", "Email Address"]
-        st.table(data)
+        response = get_all("customers/")
+        if isinstance(response, list):
+            if len(response) == 0:
+                st.warning("No customers!")
+                st.stop()
+            data = pd.DataFrame(response)
+            data = data.set_index("id")
+            data.columns = ["First Name", "Last Name", "Email Address"]
+            st.table(data)
+        else:
+            st.error(response)
 
 
 def create_customer():
@@ -35,6 +40,7 @@ def create_customer():
             "last_name": last_name,
             "email_address": email_address,
         }
+        print("#"*100)
         response = post("customer/", customer_data)
         if isinstance(response, dict):
             st.success("A new customer created.")
@@ -46,6 +52,8 @@ def create_customer():
 def manage_customer():
     st.subheader("Manage Customer")
     customer_ids = get_all_ids("customers/")
+    if customer_ids is None:
+        st.stop()
     st.write("Select the customer id:")
     same_id = None
     if st.session_state["customer"]:
@@ -59,12 +67,12 @@ def manage_customer():
         )
     else:
         customer_id = st.selectbox(
-            "Select Customer id", customer_ids, label_visibility="collapsed"
+            "Select Customer id", customer_ids, index=0, label_visibility="collapsed"
         )
 
     columns = st.columns([0.2, 0.15, 0.15, 0.5])
     find_customer_button = columns[0].button("Find Customer")
-    if find_customer_button and (same_id != customer_id):
+    if find_customer_button and (customer_id is not None) and (same_id != customer_id):
         st.session_state["find_customer"] = True
         find_customer(customer_id)
 
@@ -85,7 +93,7 @@ def find_customer(customer_id: int):
     if not st.session_state["find_customer"]:
         return
     st.session_state["find_customer"] = False
-    response = get(f"customer/{customer_id}")
+    response = get_one(f"customer/{customer_id}")
     if isinstance(response, dict):
         st.session_state["customer"] = response
         st.rerun()

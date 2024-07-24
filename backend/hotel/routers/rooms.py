@@ -1,15 +1,14 @@
-from fastapi import APIRouter, Depends, status
-from sqlalchemy.orm import Session
-
-from hotel.db.database import get_db
-from hotel.operations.rooms import (
+from backend.hotel.db.database import get_db
+from backend.hotel.operations.rooms import (
     create_room,
     delete_room,
     read_all_rooms,
     read_room,
     update_room,
 )
-from hotel.operations.schemas import RoomCreateData, RoomResult, RoomUpdateData
+from fastapi import APIRouter, Depends, status
+from backend.hotel.operations.schemas import RoomCreateData, RoomResult, RoomUpdateData
+from sqlalchemy.orm import Session
 
 router = APIRouter(tags=["Rooms"])
 

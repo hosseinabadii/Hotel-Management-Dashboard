@@ -1,19 +1,24 @@
 import pandas as pd
 import streamlit as st
 
-from dashboard.api_calls import delete, get, post, update
-
+from .api_calls import delete, get_all, get_one, post, update
 from .utils import check_empty, get_all_ids, initialize_room_session, rerun
 
 
 def all_rooms():
     st.subheader("All Rooms")
     if st.button("Show all rooms"):
-        rooms = get("rooms/")
-        data = pd.DataFrame.from_dict(rooms)
-        data = data.set_index("id")
-        data.columns = ["Number", "Size", "Price"]
-        st.table(data)
+        response = get_all("rooms/")
+        if isinstance(response, list):
+            if len(response) == 0:
+                st.warning("No rooms!")
+                st.stop()
+            data = pd.DataFrame(response)
+            data = data.set_index("id")
+            data.columns = ["Number", "Size", "Price"]
+            st.table(data)
+        else:
+            st.error(response)
 
 
 def create_room():
@@ -47,6 +52,8 @@ def create_room():
 def manage_room():
     st.subheader("Manage Room")
     room_ids = get_all_ids("rooms/")
+    if room_ids is None:
+        st.stop()
     st.write("Select the room id:")
     same_id = None
     if st.session_state["room"]:
@@ -63,7 +70,7 @@ def manage_room():
 
     columns = st.columns([0.2, 0.15, 0.15, 0.5])
     find_room_button = columns[0].button("Find Room")
-    if find_room_button and (same_id != room_id):
+    if find_room_button and (room_id is not None) and (same_id != room_id):
         st.session_state["find_room"] = True
         find_room(room_id)
 
@@ -84,7 +91,7 @@ def find_room(room_id: int):
     if not st.session_state["find_room"]:
         return
     st.session_state["find_room"] = False
-    response = get(f"room/{room_id}")
+    response = get_one(f"room/{room_id}")
     if isinstance(response, dict):
         st.session_state["room"] = response
         st.rerun()

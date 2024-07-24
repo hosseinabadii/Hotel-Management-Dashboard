@@ -2,7 +2,7 @@ import time
 
 import streamlit as st
 
-from .api_calls import get
+from .api_calls import get_all
 
 
 def rerun() -> None:
@@ -23,9 +23,12 @@ def validation_id(id: int) -> None:
         st.stop()
 
 
-def get_all_ids(end_point: str) -> list[int]:
-    items = get(end_point)
-    return [item["id"] for item in items]
+def get_all_ids(end_point: str) -> list[int] | None:
+    response = get_all(end_point)
+    if isinstance(response, str):
+        st.error(response)
+        return None
+    return [item["id"] for item in response]
 
 
 def initialize_customer_session() -> None:

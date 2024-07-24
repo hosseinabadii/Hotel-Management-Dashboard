@@ -1,8 +1,8 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from hotel.db.models import DBRoom
-from hotel.operations.schemas import RoomCreateData, RoomUpdateData
+from backend.hotel.db.models import DBRoom
+from backend.hotel.operations.schemas import RoomCreateData, RoomUpdateData
 
 
 def read_all_rooms(db: Session):

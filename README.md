@@ -25,7 +25,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 Before running the project, make sure you have the following installed:
 
-- Python 3.10+
+- Python 3.11+
 - pip
 
 ### Installation
@@ -43,20 +43,30 @@ pip install -r requirements.txt
 
 ### Running the Application
 
-1. Start the FastAPI server:
-```bash
-cd src
-uvicorn server:app --reload
-```
-The `--reload` flag enables hot reloading during development.
+1. Add current working directory to the `PYTHONPATH` environment variable:
 
-2. In a new terminal, launch the Streamlit frontend:
 ```bash
-cd src
-streamlit run app.py
+export PYTHONPATH=$PYTHONPATH:$(pwd)
 ```
 
-3. Open your web browser and go to `http://localhost:8501` for the Streamlit app and `http://localhost:8000` for the FastAPI documentation.
+2. Start the FastAPI server:
+
+(Development mode)
+```bash
+fastapi dev backend/server.py
+```
+
+(Production mode)
+```bash
+fastapi run backend/server.py
+```
+
+3. In a new terminal, launch the Streamlit frontend:
+```bash
+streamlit run frontend/app.py
+```
+
+4. Open your web browser and go to `http://localhost:8501` for the Streamlit app and `http://localhost:8000` for the FastAPI documentation.
 
 ## Usage
 

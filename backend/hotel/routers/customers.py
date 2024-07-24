@@ -1,19 +1,18 @@
-from fastapi import APIRouter, Depends, status
-from sqlalchemy.orm import Session
-
-from hotel.db.database import get_db
-from hotel.operations.customers import (
+from backend.hotel.db.database import get_db
+from backend.hotel.operations.customers import (
     create_customer,
     delete_customer,
     read_all_customers,
     read_customer,
     update_customer,
 )
-from hotel.operations.schemas import (
+from backend.hotel.operations.schemas import (
     CustomerCreateData,
     CustomerResult,
     CustomerUpdateData,
 )
+from fastapi import APIRouter, Depends, status
+from sqlalchemy.orm import Session
 
 router = APIRouter(tags=["Customers"])
 
