@@ -7,4 +7,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD [ "fastapi", "dev", "server.py" ]
+CMD [ "fastapi", "run", "server.py" ]
