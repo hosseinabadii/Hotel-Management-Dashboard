@@ -3,7 +3,8 @@ from typing import Any
 import requests
 from loguru import logger
 
-BASE_URL = "http://127.0.0.1:8000/"
+# BASE_URL = "http://127.0.0.1:8000/"
+BASE_URL = "http://fastapi-server:8000/"
 
 
 def get_one(end_point: str) -> dict[str, Any] | str:
