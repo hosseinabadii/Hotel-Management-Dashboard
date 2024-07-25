@@ -40,7 +40,6 @@ def create_customer():
             "last_name": last_name,
             "email_address": email_address,
         }
-        print("#"*100)
         response = post("customer/", customer_data)
         if isinstance(response, dict):
             st.success("A new customer created.")

@@ -2,7 +2,7 @@ services:
   fastapi-server:
     build:
       context: ./backend
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: fastapi_server
     ports:
       - "8000:8000"
@@ -10,9 +10,11 @@ services:
   streamlit-app:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: streamlit_app
     ports:
       - "8501:8501"
+    environment:
+      - BASE_URL=http://fastapi-server:8000
     depends_on:
       - fastapi-server
