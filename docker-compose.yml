@@ -6,6 +6,8 @@ services:
     container_name: fastapi_server
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend:/usr/backend
 
   streamlit-app:
     build:
@@ -14,6 +16,8 @@ services:
     container_name: streamlit_app
     ports:
       - "8501:8501"
+    volumes:
+      - ./frontend:/usr/frontend
     environment:
       - BASE_URL=http://fastapi-server:8000
     depends_on:
