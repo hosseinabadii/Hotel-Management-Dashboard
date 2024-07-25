@@ -43,12 +43,12 @@ pip install -r requirements.txt
 
 ### Running the Application
 
-1. For development use, rename `env_dev.txt` to `.env`:
+1. For development use, rename `frontend/env_dev.txt` to `frontend.env`:
 
 ```bash
 mv env_dev.txt .env
 ```
-> **Tip:** For deployment use rename `env.txt` to `.env`
+> **Tip:** For deployment use rename `frontend/env.txt` to `frontend/.env`
 > ```bash
 > mv env.txt .env
 > ```
