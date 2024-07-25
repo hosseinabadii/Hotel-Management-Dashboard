@@ -46,11 +46,11 @@ pip install -r requirements.txt
 1. For development use, rename `frontend/env_dev.txt` to `frontend.env`:
 
 ```bash
-mv env_dev.txt .env
+mv frontend/env_dev.txt frontend/.env
 ```
 > **Tip:** For deployment use rename `frontend/env.txt` to `frontend/.env`
 > ```bash
-> mv env.txt .env
+> mv frontend/env.txt frontend/.env
 > ```
 
 2. Start the FastAPI server:
