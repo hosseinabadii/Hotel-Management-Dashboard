@@ -43,7 +43,7 @@ pip install -r requirements.txt
 
 ### Running the Application
 
-1. Add current working directory to the `PYTHONPATH` environment variable:
+1. Rename `env_dev.txt` (in deployment `env_deploy.txt`) to `.env`:
 
 ```bash
 export PYTHONPATH=$PYTHONPATH:$(pwd)

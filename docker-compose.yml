@@ -18,7 +18,7 @@ services:
       - "8501:8501"
     volumes:
       - ./frontend:/usr/frontend
-    environment:
-      - BASE_URL=http://fastapi-server:8000
+    env_file:
+      - "./frontend/.env"
     depends_on:
       - fastapi-server
