@@ -41,28 +41,18 @@ cd Hotel-Management-System
 pip install -r requirements.txt
 ```
 
-### Running the Application
+### Running the Application Locally
 
-1. For development use, rename `frontend/env_dev.txt` to `frontend.env`:
+1. Rename `frontend/env_dev.txt` to `frontend/.env`:
 
 ```bash
 mv frontend/env_dev.txt frontend/.env
 ```
-> **Tip:** For deployment use rename `frontend/env.txt` to `frontend/.env`
-> ```bash
-> mv frontend/env.txt frontend/.env
-> ```
 
 2. Start the FastAPI server:
 
-(Development mode)
 ```bash
 fastapi dev backend/server.py
-```
-
-(Production mode)
-```bash
-fastapi run backend/server.py
 ```
 
 3. In a new terminal, launch the Streamlit frontend:
@@ -71,6 +61,26 @@ streamlit run frontend/app.py
 ```
 
 4. Open your web browser and go to `http://localhost:8501` for the Streamlit app and `http://localhost:8000` for the FastAPI documentation.
+
+
+### Deploying the Application using `Docker`
+
+1. Clone the repository:
+```bash
+git clone https://github.com/hosseinabadii/Hotel-Management-System.git
+cd Hotel-Management-System
+```
+
+2. Rename `frontend/env.txt` to `frontend/.env`:
+
+```bash
+mv frontend/env.txt frontend/.env
+```
+
+3. Run the application using **docker compose**:
+```bash
+docker compose up
+```
 
 ## Usage
 
