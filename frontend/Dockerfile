@@ -1,12 +1,12 @@
-FROM python:3.11.9-slim
+FROM python:3.12.10-slim-bookworm
 
-WORKDIR /usr/frontend
+WORKDIR /frontend
 
-COPY requirements.txt ./
+COPY ./requirements.txt ./
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY ./src ./src
 
 EXPOSE 8501
 

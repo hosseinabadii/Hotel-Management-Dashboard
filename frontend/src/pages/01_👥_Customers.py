@@ -1,24 +1,23 @@
+import api
 import pandas as pd
 import streamlit as st
-
-from .api_calls import delete, get_one, get_all, post, update
-from .utils import check_empty, get_all_ids, initialize_customer_session, rerun
+from utils import check_empty, get_all_ids, initialize_customer_session, rerun
 
 
 def all_customers():
     st.subheader("All Customers")
-    if st.button("Show all customers"):
-        response = get_all("customers/")
-        if isinstance(response, list):
-            if len(response) == 0:
-                st.warning("No customers!")
-                st.stop()
-            data = pd.DataFrame(response)
-            data = data.set_index("id")
-            data.columns = ["First Name", "Last Name", "Email Address"]
-            st.table(data)
-        else:
-            st.error(response)
+    response = api.get("customers/")
+    if response["status"] == "success":
+        customers = response["data"]
+        if len(customers) == 0:
+            st.warning("No customers!")
+            st.stop()
+        df = pd.DataFrame(customers)
+        df = df.set_index("id")
+        df.columns = ["First Name", "Last Name", "Email Address"]
+        st.table(df)
+    else:
+        st.error(response["message"])
 
 
 def create_customer():
@@ -40,12 +39,17 @@ def create_customer():
             "last_name": last_name,
             "email_address": email_address,
         }
-        response = post("customer/", customer_data)
-        if isinstance(response, dict):
+        response = api.post("customers/", customer_data)
+        if response["status"] == "success":
+            customer = response["data"]
             st.success("A new customer created.")
-            st.write(response)
+            st.session_state["customer"] = customer
+            df = pd.DataFrame([customer])
+            df = df.set_index("id")
+            df.columns = ["First Name", "Last Name", "Email Address"]
+            st.table(df)
         else:
-            st.error(response)
+            st.error(response["message"])
 
 
 def manage_customer():
@@ -65,9 +69,7 @@ def manage_customer():
             label_visibility="collapsed",
         )
     else:
-        customer_id = st.selectbox(
-            "Select Customer id", customer_ids, index=0, label_visibility="collapsed"
-        )
+        customer_id = st.selectbox("Select Customer id", customer_ids, index=0, label_visibility="collapsed")
 
     columns = st.columns([0.2, 0.15, 0.15, 0.5])
     find_customer_button = columns[0].button("Find Customer")
@@ -77,7 +79,10 @@ def manage_customer():
 
     customer = st.session_state["customer"]
     if customer:
-        st.write(customer)
+        df = pd.DataFrame([customer])
+        df = df.set_index("id")
+        df.columns = ["First Name", "Last Name", "Email Address"]
+        st.table(df)
         update_button = columns[1].button("Update")
         delete_button = columns[2].button("Delete")
         if update_button or st.session_state["update_customer"]:
@@ -92,12 +97,12 @@ def find_customer(customer_id: int):
     if not st.session_state["find_customer"]:
         return
     st.session_state["find_customer"] = False
-    response = get_one(f"customer/{customer_id}")
-    if isinstance(response, dict):
-        st.session_state["customer"] = response
+    response = api.get(f"customers/{customer_id}")
+    if response["status"] == "success":
+        st.session_state["customer"] = response["data"]
         st.rerun()
     else:
-        st.error(response)
+        st.error(response["message"])
         st.session_state["customer"] = None
         rerun()
 
@@ -109,20 +114,18 @@ def update_customer(customer: dict) -> None:
         customer_data = {
             "first_name": st.text_input("First Name:", value=customer["first_name"]),
             "last_name": st.text_input("Last Name:", value=customer["last_name"]),
-            "email_address": st.text_input(
-                "Email Address:", value=customer["email_address"]
-            ),
+            "email_address": st.text_input("Email Address:", value=customer["email_address"]),
         }
         submitted = st.form_submit_button("Update")
         if submitted:
             st.session_state["update_customer"] = False
-            response = update(f"customer/{customer['id']}", customer_data)
-            if isinstance(response, dict):
+            response = api.update(f"customers/{customer['id']}", customer_data)
+            if response["status"] == "success":
                 st.success("Customer modified.")
-                st.session_state["customer"] = response
+                st.session_state["customer"] = response["data"]
                 rerun()
             else:
-                st.error(response)
+                st.error(response["message"])
                 rerun()
 
 
@@ -132,14 +135,14 @@ def delete_customer(customer_id: int) -> None:
     st.warning("Are you sure you want to delete this customer?")
     columns = st.columns([0.1, 0.1, 0.8])
     if columns[0].button("Yes"):
-        response = delete(f"customer/{customer_id}")
-        if isinstance(response, bool):
+        response = api.delete(f"customers/{customer_id}")
+        if response["status"] == "success":
             st.success("Customer deleted.")
             st.session_state["customer"] = None
             st.session_state["delete_customer"] = False
             rerun()
         else:
-            st.error(response)
+            st.error(response["message"])
             rerun()
     if columns[1].button("No"):
         st.session_state["delete_customer"] = False
@@ -149,11 +152,7 @@ def delete_customer(customer_id: int) -> None:
 
 def customers_view() -> None:
     initialize_customer_session()
-    menu_options = [
-        "All Customers",
-        "Create Customer",
-        "Manage Customer",
-    ]
+    menu_options = ["All Customers", "Create Customer", "Manage Customer"]
     menu_choice = st.sidebar.radio("List of operations:", menu_options)
 
     if menu_choice == menu_options[0]:
@@ -164,3 +163,7 @@ def customers_view() -> None:
 
     if menu_choice == menu_options[2]:
         manage_customer()
+
+
+if __name__ == "__main__":
+    customers_view()

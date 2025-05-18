@@ -1,13 +1,13 @@
-FROM python:3.11.9-alpine3.20
+FROM python:3.12.10-slim-bookworm
 
-WORKDIR /usr/backend
+WORKDIR /backend
 
-COPY requirements.txt ./
+COPY ./requirements.txt ./
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY ./app ./app
 
 EXPOSE 8000
 
-CMD [ "fastapi", "run", "server.py" ]
+CMD ["fastapi", "run", "app", "--host", "0.0.0.0", "--port", "8000"]

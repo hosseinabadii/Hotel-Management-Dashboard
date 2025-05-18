@@ -1,3 +1,6 @@
+import asyncio
+
+from .main import async_session
 from .models import DBCustomer, DBRoom
 
 customers = [
@@ -30,3 +33,16 @@ rooms = [
     DBRoom(number="104", size=20, price=250_00),
     DBRoom(number="105", size=30, price=350_00),
 ]
+
+
+async def main():
+    print("Populating database...")
+    async with async_session() as session:
+        session.add_all(customers)
+        session.add_all(rooms)
+        await session.commit()
+        print("Successfully Done!")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

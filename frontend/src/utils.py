@@ -1,8 +1,7 @@
 import time
 
+import api
 import streamlit as st
-
-from .api_calls import get_all
 
 
 def rerun() -> None:
@@ -24,11 +23,11 @@ def validation_id(id: int) -> None:
 
 
 def get_all_ids(end_point: str) -> list[int] | None:
-    response = get_all(end_point)
-    if isinstance(response, str):
-        st.error(response)
-        return None
-    return [item["id"] for item in response]
+    response = api.get(end_point)
+    if response["status"] == "error":
+        st.error(response["message"])
+        return
+    return [item["id"] for item in response["data"]]
 
 
 def initialize_customer_session() -> None:

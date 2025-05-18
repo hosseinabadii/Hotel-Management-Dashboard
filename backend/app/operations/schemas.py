@@ -16,7 +16,7 @@ class CustomerUpdateData(BaseModel):
     email_address: str | None
 
 
-class CustomerResult(BaseModel):
+class CustomerPublic(BaseModel):
     id: int
     first_name: str
     last_name: str
@@ -38,7 +38,7 @@ class RoomUpdateData(BaseModel):
     price: int | None
 
 
-class RoomResult(BaseModel):
+class RoomPublic(BaseModel):
     id: int
     number: str
     size: int
@@ -62,7 +62,7 @@ class BookingUpdateData(BaseModel):
     to_date: date | None
 
 
-class BookingResult(BaseModel):
+class BookingPublic(BaseModel):
     id: int
     room_id: int
     customer_id: int

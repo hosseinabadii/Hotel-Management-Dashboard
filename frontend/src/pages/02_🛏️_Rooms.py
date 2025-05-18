@@ -1,24 +1,23 @@
+import api
 import pandas as pd
 import streamlit as st
-
-from .api_calls import delete, get_all, get_one, post, update
-from .utils import check_empty, get_all_ids, initialize_room_session, rerun
+from utils import check_empty, get_all_ids, initialize_room_session, rerun
 
 
 def all_rooms():
     st.subheader("All Rooms")
-    if st.button("Show all rooms"):
-        response = get_all("rooms/")
-        if isinstance(response, list):
-            if len(response) == 0:
-                st.warning("No rooms!")
-                st.stop()
-            data = pd.DataFrame(response)
-            data = data.set_index("id")
-            data.columns = ["Number", "Size", "Price"]
-            st.table(data)
-        else:
-            st.error(response)
+    response = api.get("rooms/")
+    if response["status"] == "success":
+        rooms = response["data"]
+        if len(rooms) == 0:
+            st.warning("No rooms!")
+            st.stop()
+        df = pd.DataFrame(rooms)
+        df = df.set_index("id")
+        df.columns = ["Number", "Size", "Price"]
+        st.table(df)
+    else:
+        st.error(response["message"])
 
 
 def create_room():
@@ -41,12 +40,17 @@ def create_room():
             "size": size,
             "price": price,
         }
-        response = post("room/", room_data)
-        if isinstance(response, dict):
+        response = api.post("rooms/", room_data)
+        if response["status"] == "success":
+            room = response["data"]
             st.success("A new room created.")
-            st.write(response)
+            st.session_state["room"] = room
+            df = pd.DataFrame([room])
+            df = df.set_index("id")
+            df.columns = ["Number", "Size", "Price"]
+            st.table(df)
         else:
-            st.error(response)
+            st.error(response["message"])
 
 
 def manage_room():
@@ -76,7 +80,10 @@ def manage_room():
 
     room = st.session_state["room"]
     if room:
-        st.write(room)
+        df = pd.DataFrame([room])
+        df = df.set_index("id")
+        df.columns = ["Number", "Size", "Price"]
+        st.table(df)
         update_button = columns[1].button("Update")
         delete_button = columns[2].button("Delete")
         if update_button or st.session_state["update_room"]:
@@ -91,12 +98,12 @@ def find_room(room_id: int):
     if not st.session_state["find_room"]:
         return
     st.session_state["find_room"] = False
-    response = get_one(f"room/{room_id}")
-    if isinstance(response, dict):
-        st.session_state["room"] = response
+    response = api.get(f"rooms/{room_id}")
+    if response["status"] == "success":
+        st.session_state["room"] = response["data"]
         st.rerun()
     else:
-        st.error(response)
+        st.error(response["message"])
         st.session_state["room"] = None
         rerun()
 
@@ -118,13 +125,13 @@ def update_room(room: dict) -> None:
         submitted = st.form_submit_button("Update")
         if submitted:
             st.session_state["update_room"] = False
-            response = update(f"room/{room['id']}", room_data)
-            if isinstance(response, dict):
+            response = api.update(f"rooms/{room['id']}", room_data)
+            if response["status"] == "success":
                 st.success("Room modified.")
-                st.session_state["room"] = response
+                st.session_state["room"] = response["data"]
                 rerun()
             else:
-                st.error(response)
+                st.error(response["message"])
                 rerun()
 
 
@@ -134,14 +141,14 @@ def delete_room(room_id: int) -> None:
     st.warning("Are you sure you want to delete this room?")
     columns = st.columns([0.1, 0.1, 0.8])
     if columns[0].button("Yes"):
-        response = delete(f"room/{room_id}")
-        if isinstance(response, bool):
+        response = api.delete(f"rooms/{room_id}")
+        if response["status"] == "success":
             st.success("Room deleted.")
             st.session_state["room"] = None
             st.session_state["delete_room"] = False
             rerun()
         else:
-            st.error(response)
+            st.error(response["message"])
             rerun()
     if columns[1].button("No"):
         st.session_state["delete_room"] = False
@@ -151,11 +158,7 @@ def delete_room(room_id: int) -> None:
 
 def rooms_view() -> None:
     initialize_room_session()
-    menu_options = [
-        "All Rooms",
-        "Create Room",
-        "Manage Room",
-    ]
+    menu_options = ["All Rooms", "Create Room", "Manage Room"]
     menu_choice = st.sidebar.radio("List of operations:", menu_options)
 
     if menu_choice == menu_options[0]:
@@ -166,3 +169,7 @@ def rooms_view() -> None:
 
     if menu_choice == menu_options[2]:
         manage_room()
+
+
+if __name__ == "__main__":
+    rooms_view()

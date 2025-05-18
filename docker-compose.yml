@@ -1,24 +1,55 @@
 services:
-  fastapi-server:
+  db:
+    container_name: postgres
+    image: postgres:17.4-bookworm
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - database-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    container_name: fastapi_server
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: fastapi_server
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend:/usr/backend
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    networks:
+      - app-network
+    depends_on:
+      db:
+        condition: service_healthy
 
-  streamlit-app:
+  frontend:
+    container_name: streamlit_app
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: streamlit_app
     ports:
       - "8501:8501"
-    volumes:
-      - ./frontend:/usr/frontend
-    env_file:
-      - "./frontend/.env"
+    environment:
+      BASE_URL: ${BASE_URL}
+    networks:
+      - app-network
     depends_on:
-      - fastapi-server
+      - backend
+
+volumes:
+  database-data:
+    name: database-data
+
+networks:
+  app-network:
+    name: app-network
+    driver: bridge
