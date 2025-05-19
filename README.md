@@ -166,6 +166,7 @@ Required environment variables in `.env` file:
 - `POSTGRES_PASSWORD`: PostgreSQL password
 - `POSTGRES_DB`: PostgreSQL database name
 - `DATABASE_URL`: Database connection URL (PostgreSQL or SQLite)
+- `POPULATE_DB`: Populate database with sample data
 
 ### Application Configuration
 
