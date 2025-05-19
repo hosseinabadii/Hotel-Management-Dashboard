@@ -25,6 +25,7 @@ services:
       - "8000:8000"
     environment:
       DATABASE_URL: ${DATABASE_URL}
+      POPULATE_DB: ${POPULATE_DB}
     networks:
       - app-network
     depends_on:
